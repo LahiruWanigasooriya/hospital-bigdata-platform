@@ -339,6 +339,11 @@ function App() {
 
       <main>
 
+        <div className="hero-banner">
+          <h2>Partnering for Better Health</h2>
+          <p>Real-time vital signs and laboratory result monitoring system.</p>
+        </div>
+
         <section className="metrics-grid">
 
           <MetricCard
@@ -347,6 +352,7 @@ function App() {
               overview
                 ?.active_patients
             }
+            isPrimary={true}
           />
 
           <MetricCard

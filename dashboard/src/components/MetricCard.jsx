@@ -1,10 +1,11 @@
 function MetricCard({
   title,
-  value
+  value,
+  isPrimary
 }) {
 
   return (
-    <div className="metric-card">
+    <div className={`metric-card ${isPrimary ? "primary" : ""}`}>
 
       <span className="metric-title">
         {title}
