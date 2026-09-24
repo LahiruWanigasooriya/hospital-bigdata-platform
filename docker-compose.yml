@@ -1,0 +1,209 @@
+
+services:
+
+  kafka:
+    image: apache/kafka:3.9.1
+    container_name: hospital-kafka
+
+    ports:
+      - "127.0.0.1:9094:9094"
+
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      KAFKA_NUM_PARTITIONS: 3
+
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+    networks:
+      - hospital-network
+
+  postgres:
+    image: postgres:16
+    container_name: hospital-postgres
+
+    ports:
+      - "127.0.0.1:5433:5432"
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hospital -d hospital_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - hospital-network
+  
+  spark:
+    build:
+      context: ./spark
+      dockerfile: Dockerfile
+    image: hospital-spark:3.5.6
+    container_name: hospital-spark
+
+    user: "0:0"
+
+    working_dir: /opt/project
+
+    command:
+      - /bin/bash
+      - -c
+      - sleep infinity
+
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      SPARK_HOME: /opt/spark
+      SPARK_LOCAL_IP: 127.0.0.1
+      PYSPARK_PYTHON: python3
+      PYTHONPATH: /opt/project/spark:/opt/spark/python:/opt/spark/python/lib/py4j-0.10.9.7-src.zip
+
+    volumes:
+      - ./spark:/opt/project/spark
+
+    networks:
+      - hospital-network
+
+    depends_on:
+      - kafka
+      - postgres
+  
+
+  airflow-init:
+    image: apache/airflow:2.10.5
+    container_name: hospital-airflow-init
+
+    depends_on:
+      - postgres
+
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: >-
+        postgresql+psycopg2://hospital:hospital_dev_password@postgres:5432/airflow_db
+
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+
+    command: >
+      bash -c "
+      airflow db migrate &&
+      airflow users create
+      --username admin
+      --password admin
+      --firstname Hospital
+      --lastname Admin
+      --role Admin
+      --email admin@example.com || true
+      "
+
+    networks:
+      - hospital-network
+
+  airflow-webserver:
+    image: apache/airflow:2.10.5
+    container_name: hospital-airflow-webserver
+
+    depends_on:
+      - postgres
+
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: >-
+        postgresql+psycopg2://hospital:hospital_dev_password@postgres:5432/airflow_db
+
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+
+      HOSPITAL_DB_HOST: postgres
+      HOSPITAL_DB_PORT: "5432"
+      HOSPITAL_DB_NAME: hospital_db
+      HOSPITAL_DB_USER: hospital
+      HOSPITAL_DB_PASSWORD: hospital_dev_password
+
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+
+    ports:
+      - "8081:8080"
+
+    networks:
+      - hospital-network
+
+    command: webserver
+
+  airflow-scheduler:
+    image: apache/airflow:2.10.5
+    container_name: hospital-airflow-scheduler
+
+    depends_on:
+      - postgres
+
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: >-
+        postgresql+psycopg2://hospital:hospital_dev_password@postgres:5432/airflow_db
+
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+
+      HOSPITAL_DB_HOST: postgres
+      HOSPITAL_DB_PORT: "5432"
+      HOSPITAL_DB_NAME: hospital_db
+      HOSPITAL_DB_USER: hospital
+      HOSPITAL_DB_PASSWORD: hospital_dev_password
+
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+
+    networks:
+      - hospital-network
+
+    command: scheduler
+    
+volumes:
+  kafka_data:
+  postgres_data:
+
+networks:
+  hospital-network:
+    driver: bridge

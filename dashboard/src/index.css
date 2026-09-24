@@ -1,0 +1,323 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    Inter,
+    Arial,
+    sans-serif;
+  background: #f4f7fb;
+  color: #172033;
+}
+
+button,
+select {
+  font: inherit;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+.header {
+  background: #ffffff;
+  border-bottom: 1px solid #e5eaf1;
+  padding: 22px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.header p {
+  margin: 5px 0 0;
+  color: #697386;
+}
+
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.live-indicator small {
+  margin-left: 8px;
+  color: #697386;
+}
+
+.live-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #16a34a;
+}
+
+main {
+  width: 90%;
+  max-width: 1450px;
+  margin: 25px auto 60px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.metric-card {
+  background: white;
+  border: 1px solid #e5eaf1;
+  border-radius: 12px;
+  padding: 22px;
+}
+
+.metric-title {
+  display: block;
+  color: #697386;
+  margin-bottom: 10px;
+}
+
+.metric-value {
+  font-size: 30px;
+}
+
+.panel {
+  background: white;
+  border: 1px solid #e5eaf1;
+  border-radius: 12px;
+  padding: 22px;
+  margin-bottom: 22px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.panel h2,
+.chart-container h3 {
+  margin: 0;
+}
+
+select {
+  padding: 9px 14px;
+  border-radius: 7px;
+  border: 1px solid #cfd6e4;
+  background: white;
+}
+
+.vital-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.vital-box {
+  background: #f8fafc;
+  border-radius: 9px;
+  padding: 16px;
+}
+
+.vital-box span {
+  display: block;
+  color: #697386;
+  font-size: 14px;
+  margin-bottom: 7px;
+}
+
+.vital-box strong {
+  font-size: 21px;
+}
+
+.patient-warning {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.chart-container {
+  width: 100%;
+}
+
+.chart-container h3 {
+  margin-bottom: 18px;
+}
+
+.alert-count {
+  background: #fee2e2;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.alert-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff7f7;
+  border-left: 4px solid #dc2626;
+  padding: 13px 15px;
+}
+
+.alert-item p {
+  margin: 4px 0 0;
+  color: #697386;
+}
+
+.alert-values {
+  font-size: 14px;
+}
+
+.report-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  margin-bottom: 18px;
+  color: #475569;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 11px;
+  border-bottom: 1px solid #e5eaf1;
+  white-space: nowrap;
+}
+
+th {
+  background: #f8fafc;
+}
+
+.status {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-complete {
+  background: #dcfce7;
+}
+
+.status-partial {
+  background: #fef3c7;
+}
+
+.status-missing {
+  background: #fee2e2;
+}
+
+.error-banner {
+  width: 90%;
+  max-width: 1450px;
+  margin: 15px auto;
+  background: #fee2e2;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.empty {
+  color: #697386;
+}
+
+@media (
+  max-width: 900px
+) {
+
+  .metrics-grid,
+  .vital-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+}
+
+@media (
+  max-width: 600px
+) {
+
+  .metrics-grid,
+  .vital-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header,
+  .alert-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+}
+
+.concern {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.concern-normal {
+  background: #dcfce7;
+}
+
+.concern-watch {
+  background: #fef3c7;
+}
+
+.concern-high {
+  background: #fee2e2;
+}
+
+.health-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.health-indicator.healthy
+.live-dot {
+  background: #16a34a;
+}
+
+.health-indicator.unhealthy
+.live-dot {
+  background: #dc2626;
+}
+
+.health-indicator.unhealthy {
+  color: #b91c1c;
+}

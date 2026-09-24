@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+
+dashboard/node_modules/
+dashboard/dist/
+
+spark/checkpoints/
+
+airflow/logs/
+
+.env
+
+data/labs/*.csv
